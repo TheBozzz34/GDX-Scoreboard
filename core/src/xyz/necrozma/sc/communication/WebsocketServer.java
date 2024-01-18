@@ -7,14 +7,19 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+
+import com.google.common.eventbus.EventBus;
 import org.java_websocket.WebSocket;
-import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+
+
+
+
 
 
 public class WebsocketServer extends WebSocketServer {
@@ -54,7 +59,7 @@ public class WebsocketServer extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         broadcast(message);
-        logger.info(conn + ": " + message);
+        logger.info(conn.getRemoteSocketAddress() + ": " + message);
     }
 
     @Override

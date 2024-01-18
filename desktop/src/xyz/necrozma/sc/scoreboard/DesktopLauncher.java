@@ -11,8 +11,13 @@ import xyz.necrozma.sc.license.methods.Key;
 import xyz.necrozma.sc.license.models.ActivateModel;
 import xyz.necrozma.sc.license.models.LicenseKey;
 
+import xyz.necrozma.sc.types.GameState;
+
 
 public class DesktopLauncher {
+
+	private static GameState gameState = new GameState();
+
 	public static void main (String[] arg) {
 
 		Logger logger = LogManager.getLogger(DesktopLauncher.class);
@@ -50,6 +55,7 @@ public class DesktopLauncher {
 			logger.error("License key is not valid for this machine.");
 			System.exit(1);
 		} else { logger.info("License key is valid."); }
+
 
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);

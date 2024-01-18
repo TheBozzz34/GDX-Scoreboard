@@ -16,6 +16,7 @@ import java.io.IOException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import xyz.necrozma.sc.communication.WebsocketServer;
+import xyz.necrozma.sc.types.GameState;
 
 public class scoreboard extends ApplicationAdapter {
 
@@ -24,9 +25,6 @@ public class scoreboard extends ApplicationAdapter {
 	BitmapFont font;
 	OrthographicCamera camera;
 	Texture background;
-
-	int teamAScore = 0;
-	int teamBScore = 0;
 
 	WebsocketServer server;
 
@@ -70,8 +68,8 @@ public class scoreboard extends ApplicationAdapter {
 
 		batch.begin();
 		batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		font.draw(batch, "Team A: " + teamAScore, 20, Gdx.graphics.getHeight() - 20);
-		font.draw(batch, "Team B: " + teamBScore, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 20);
+		font.draw(batch, "Team A: " + 1, 20, Gdx.graphics.getHeight() - 20);
+		font.draw(batch, "Team B: " + 2, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 20);
 		batch.end();
 	}
 
