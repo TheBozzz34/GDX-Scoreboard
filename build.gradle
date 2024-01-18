@@ -81,5 +81,7 @@ project(":core") {
 
         testCompileOnly 'org.projectlombok:lombok:1.18.30'
         testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+        implementation 'com.github.pvdberg1998:pnet:1.5.10'
     }
 }

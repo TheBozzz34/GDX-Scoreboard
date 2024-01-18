@@ -9,6 +9,13 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 
 import com.google.common.eventbus.EventBus;
+import nl.pvdberg.pnet.client.Client;
+import nl.pvdberg.pnet.client.util.PlainClient;
+import nl.pvdberg.pnet.event.PNetListener;
+import nl.pvdberg.pnet.packet.Packet;
+import nl.pvdberg.pnet.packet.PacketBuilder;
+import nl.pvdberg.pnet.server.Server;
+import nl.pvdberg.pnet.server.util.PlainServer;
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ClientHandshake;
@@ -27,6 +34,8 @@ public class WebsocketServer extends WebSocketServer {
     private static final Logger logger = LogManager.getLogger(WebsocketServer.class);
 
     private static final int PORT = 80;
+
+    private static Client client;
 
     static WebsocketServer instance;
 
@@ -60,12 +69,15 @@ public class WebsocketServer extends WebSocketServer {
     public void onMessage(WebSocket conn, String message) {
         broadcast(message);
         logger.info(conn.getRemoteSocketAddress() + ": " + message);
+
     }
 
     @Override
     public void onMessage(WebSocket conn, ByteBuffer message) {
-        broadcast(message.array());
-        logger.info(conn + ": " + message);
+        //broadcast(message.array());
+        //logger.info("received ByteBuffer from " + conn.getRemoteSocketAddress());
+
+
     }
 
 
@@ -77,6 +89,42 @@ public class WebsocketServer extends WebSocketServer {
         }
         instance = new WebsocketServer(port);
         instance.start();
+
+        client = new PlainClient();
+        client.setClientListener(new PNetListener()
+        {
+            @Override
+            public void onConnect(final Client c)
+            {
+                logger.info("Connected to server.");
+            }
+
+            @Override
+            public void onDisconnect(final Client c)
+            {
+                logger.info("Disconnected from server.");
+            }
+
+            @Override
+            public void onReceive(final Packet p, final Client c) throws IOException
+            {
+                logger.info("Received packet.");
+            }
+        });
+
+        try {
+            client.connect("127.0.0.1", 8888);
+            Packet packet = new PacketBuilder(Packet.PacketType.Request)
+                    .withInt(99)
+                    .withString("abc")
+                    .withBoolean(true)
+                    .build();
+            client.send(packet);
+        } catch (Exception e) {
+            logger.error("Failed to connect to server.", e);
+            throw new RuntimeException(e);
+        }
+
 
         BufferedReader sysin = new BufferedReader(new InputStreamReader(System.in));
         while (true) {
@@ -107,6 +155,8 @@ public class WebsocketServer extends WebSocketServer {
     public void stop() {
         if (instance != null) {
             stop();
+
+            client.close();
         }
     }
 }

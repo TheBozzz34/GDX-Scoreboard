@@ -8,6 +8,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import nl.pvdberg.pnet.client.Client;
+import nl.pvdberg.pnet.event.PNetListener;
+import nl.pvdberg.pnet.packet.Packet;
+import nl.pvdberg.pnet.server.Server;
+import nl.pvdberg.pnet.server.util.PlainServer;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.core.config.DefaultConfiguration;
 
@@ -28,10 +33,42 @@ public class scoreboard extends ApplicationAdapter {
 
 	WebsocketServer server;
 
+	Server pnetServer;
+
 
 	@Override
 	public void create() {
 		Configurator.initialize(new DefaultConfiguration());
+
+        try {
+            pnetServer = new PlainServer();
+        } catch (IOException e) {
+			logger.error("Failed to start PNet server.", e);
+            throw new RuntimeException(e);
+        }
+        pnetServer.setListener(new PNetListener()
+		{
+			@Override
+			public void onConnect(final Client c)
+			{
+				logger.info("Client connected.");
+			}
+
+			@Override
+			public void onDisconnect(final Client c)
+			{
+				logger.info("Client disconnected.");
+			}
+
+			@Override
+			public void onReceive(final Packet p, final Client c) throws IOException
+			{
+				logger.info("Received packet.");
+			}
+		});
+
+		pnetServer.start(8888);
+
 
 		try {
 			server = new WebsocketServer(80);
@@ -92,6 +129,8 @@ public class scoreboard extends ApplicationAdapter {
 		background.dispose();
 
         server.stop();
+
+		pnetServer.stop();
 
 		System.exit(0);
     }
