@@ -4,10 +4,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.core.config.DefaultConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import xyz.necrozma.sc.license.methods.Helpers;
 import xyz.necrozma.sc.license.methods.Key;
 import xyz.necrozma.sc.license.models.ActivateModel;
@@ -17,7 +15,7 @@ import xyz.necrozma.sc.license.models.LicenseKey;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 
-		Logger logger = LoggerFactory.getLogger(DesktopLauncher.class);
+		Logger logger = LogManager.getLogger(DesktopLauncher.class);
 
 		ArgumentParser parser = ArgumentParsers.newFor("GDX Scoreboard").build()
 				.defaultHelp(true)
@@ -51,9 +49,7 @@ public class DesktopLauncher {
 		if (license == null || !Helpers.IsOnRightMachine(license)) {
 			logger.error("License key is not valid for this machine.");
 			System.exit(1);
-		} else {
-			logger.info("License key is valid for this machine.");
-		}
+		} else { logger.info("License key is valid."); }
 
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setForegroundFPS(60);

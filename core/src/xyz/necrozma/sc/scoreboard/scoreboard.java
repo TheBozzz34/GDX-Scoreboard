@@ -8,9 +8,18 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
+
+import java.io.IOException;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import xyz.necrozma.sc.communication.WebsocketServer;
 
 public class scoreboard extends ApplicationAdapter {
+
+	private static final Logger logger = LogManager.getLogger(scoreboard.class);
 	SpriteBatch batch;
 	BitmapFont font;
 	OrthographicCamera camera;
@@ -19,9 +28,22 @@ public class scoreboard extends ApplicationAdapter {
 	int teamAScore = 0;
 	int teamBScore = 0;
 
+	WebsocketServer server;
+
+
 	@Override
 	public void create() {
-		batch = new SpriteBatch();
+		Configurator.initialize(new DefaultConfiguration());
+
+		try {
+			server = new WebsocketServer(80);
+			server.start();
+		} catch (IOException e) {
+			logger.error("Failed to start websocket server.", e);
+			throw new RuntimeException(e);
+		}
+
+        batch = new SpriteBatch();
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.setToOrtho(false);
 		background = new Texture("background.jpg"); // Replace "background.jpg" with your background image file
@@ -32,6 +54,8 @@ public class scoreboard extends ApplicationAdapter {
 		parameter.size = 32; // Set the font size as needed
 		font = generator.generateFont(parameter);
 		generator.dispose(); // Dispose the generator to free resources
+
+		logger.info("Scoreboard GUI has started.");
 	}
 
 	@Override
@@ -47,12 +71,11 @@ public class scoreboard extends ApplicationAdapter {
 		batch.begin();
 		batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		font.draw(batch, "Team A: " + teamAScore, 20, Gdx.graphics.getHeight() - 20);
-		font.draw(batch, "Team B: " + teamBScore, Gdx.graphics.getWidth() - 120, Gdx.graphics.getHeight() - 20);
+		font.draw(batch, "Team B: " + teamBScore, Gdx.graphics.getWidth() - 200, Gdx.graphics.getHeight() - 20);
 		batch.end();
 	}
 
 	private void handleInput() {
-		// You can add touch/click handling logic if needed
 	}
 
 	private void update() {
@@ -60,9 +83,18 @@ public class scoreboard extends ApplicationAdapter {
 	}
 
 	@Override
+	public void resize(int width, int height) {
+		camera.setToOrtho(false, width, height);
+	}
+
+	@Override
 	public void dispose() {
 		batch.dispose();
 		font.dispose();
 		background.dispose();
-	}
+
+        server.stop();
+
+		System.exit(0);
+    }
 }
